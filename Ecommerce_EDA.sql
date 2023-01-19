@@ -83,9 +83,11 @@ GROUP BY
 ORDER BY 
     COUNT(*) DESC;
 
--- ------------------------------------------------------
+-- ---------------------------------------------------------------------------------------------------------------
 -- Min, max, sum and avarage of credit_limit
--- ------------------------------------------------------
+-- Additional: Min/max credit score arasında çok fark varsa biz bunları 4'e bölebiliriz (quartile) 
+-- Additional: Min/max price arasında fark varsa burada da zengin ürünü/fakir ürünü karşılaştırması yapılabilir
+-- ---------------------------------------------------------------------------------------------------------------
    
 SELECT
 	MIN(credit_limit) AS min_credit_limit,
@@ -203,7 +205,7 @@ SELECT
 	AVG(public.payments.amount)
 FROM
 	public.customers
-INNER JOIN public.payments ON
+JOIN public.payments ON
 	public.customers.customer_number = public.payments.customer_number
 GROUP BY
 	customers.country;
@@ -244,7 +246,8 @@ FROM
 -- ------------------------------------------------------
 
 SELECT
-	count(*)
+	--count(*)
+	*
 FROM
 	public.products;
 
