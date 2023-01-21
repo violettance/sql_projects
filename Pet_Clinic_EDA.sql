@@ -18,6 +18,19 @@ FROM
 	public.animals;
 
 -- ------------------------------------------------------
+-- Animal ages
+-- ------------------------------------------------------
+
+SELECT
+	age
+FROM
+	public.animals
+WHERE
+	TYPE = 'rabbit'
+ORDER BY age;
+
+
+-- ------------------------------------------------------
 -- Group by type of the animals
 -- ------------------------------------------------------
 
@@ -142,4 +155,81 @@ SELECT
 	*
 FROM
 	public.owners;
+
+-- ------------------------------------------------------
+-- Count of owners job role from job title by desc order
+-- ------------------------------------------------------
+
+SELECT
+	job_role,
+	COUNT(*)
+FROM
+	(
+		SELECT
+			split_part(job_title, ' ', 3) AS job_role
+		FROM
+			public.owners
+	) AS split_job_role
+GROUP BY
+	job_role
+ORDER BY count(*) DESC;
+
+
+-- ------------------------------------------------------
+-- Count of owners job role from job title by country
+-- ------------------------------------------------------
+
+SELECT
+	country,
+	split_part(job_title, ' ', 3) AS job_role,
+	COUNT(*)
+FROM
+	public.owners
+GROUP BY
+	country,
+	job_role
+ORDER BY
+	country;
+
+-- ------------------------------------------------------------------------
+-- Count of owners job role from job title by country with where statement
+-- ------------------------------------------------------------------------
+
+SELECT
+    country,
+    split_part(job_title, ' ', 3) AS job_role,
+    COUNT(*)
+FROM
+    public.owners
+WHERE country = 'Avon'
+GROUP BY
+    country,
+    job_role
+ORDER BY
+    country;
+
+-- ------------------------------------------------------------------------------
+-- Count of owners job role from job title by country, city with where statement
+-- ------------------------------------------------------------------------------
+
+SELECT
+	city,
+    country,
+    split_part(job_title, ' ', 3) AS job_role,
+    COUNT(*)
+FROM
+    public.owners
+WHERE
+	split_part(job_title, ' ', 3) = 'Strategist'
+	AND country = 'Borders'
+GROUP BY
+    country,
+    job_role,
+    city
+ORDER BY
+    country;
+
+
+
+
 
