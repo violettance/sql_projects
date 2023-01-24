@@ -129,11 +129,11 @@ WHERE
 
 -- ------------------------------------------------------
 -- Dec 2013 total customer
--- 2,050
+-- 1,970
 -- ------------------------------------------------------
 
 SELECT
-	DISTINCT COUNT(customerid)
+	COUNT(DISTINCT(customerid))
 FROM
 	sales.salesorderheader
 WHERE
@@ -141,11 +141,11 @@ WHERE
 
 -- ------------------------------------------------------
 -- Nov 2013 total customer
--- 2,103
+-- 2,041
 -- ------------------------------------------------------
 
 SELECT
-	DISTINCT COUNT(customerid)
+	COUNT(DISTINCT(customerid))
 FROM
 	sales.salesorderheader
 WHERE
@@ -154,11 +154,11 @@ WHERE
 
 -- ------------------------------------------------------
 -- Dec 2012 total orders
--- 132
+-- 378
 -- ------------------------------------------------------
 
 SELECT
-	DISTINCT COUNT(customerid)
+	COUNT(DISTINCT(customerid))
 FROM
 	sales.salesorderheader
 WHERE
