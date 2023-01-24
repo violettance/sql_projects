@@ -18,7 +18,7 @@ FROM
 	public.websites;
 
 -- ------------------------------------------------------
--- Websites table rating count
+-- Websites table rating counts
 -- ------------------------------------------------------
 
 SELECT
