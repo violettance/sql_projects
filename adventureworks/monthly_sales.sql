@@ -204,7 +204,33 @@ WHERE
 SELECT * FROM sales.salesorderdetail sod LIMIT 100;
 
 
+-- ------------------------------------------------------
+-- 2012 summary
+-- ------------------------------------------------------
 
+SELECT
+	EXTRACT(YEAR FROM soh.orderdate) AS order_year,
+	EXTRACT(MONTH FROM soh.orderdate) AS order_month,
+	SUM(soh.subtotal) AS subtotal,
+	-- COUNT(CASE WHEN soh.status = 2 THEN soh.purchaseordernumber ELSE NULL END) order_count,
+	-- COUNT(CASE WHEN soh.status = 6 THEN 1 ELSE NULL END) cancel_count,
+	COUNT(soh.salesorderid) AS total_order_count,
+	COUNT(DISTINCT soh.customerid) AS distinct_cust,
+	SUM(sod.orderqty) AS unit_quantity,
+	COUNT(soh.salesorderid) / COUNT(DISTINCT soh.customerid) AS avg_order_per_person,
+	SUM(soh.subtotal) / COUNT(soh.salesorderid) AS avg_order_amount,
+	SUM(soh.subtotal) / COUNT(DISTINCT soh.customerid) AS avg_order_amt_p_person
+FROM
+	sales.salesorderheader soh
+JOIN
+	sales.salesorderdetail sod
+	ON soh.salesorderid = sod.salesorderid
+WHERE
+	soh.orderdate BETWEEN '2012-01-01' AND '2012-12-31'
+	AND soh.status = 5 --IN (2, 6) -- 2 = Approved, 6 = Cancelled, 5 = Shipped
+GROUP BY
+	EXTRACT(YEAR FROM soh.orderdate),
+	EXTRACT(MONTH FROM soh.orderdate);
 
 
 
