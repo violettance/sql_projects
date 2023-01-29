@@ -165,9 +165,12 @@ WHERE
 	orderdate BETWEEN '2012-12-01' AND '2012-12-31';
 
 -- ------------------------------------------------------
--- Monthly summary
+-- Monthly/Annual summary
 -- ------------------------------------------------------
 
+-- DROP TABLE annual_sales;
+
+CREATE TEMPORARY TABLE annual_sales AS 
 SELECT
 	EXTRACT(YEAR FROM soh.orderdate) AS order_year,
 	EXTRACT(MONTH FROM soh.orderdate) AS order_month,
@@ -186,7 +189,7 @@ JOIN
 	sales.salesorderdetail sod
 	ON soh.salesorderid = sod.salesorderid
 WHERE
-	soh.orderdate BETWEEN '2012-01-01' AND '2013-01-25'
+	soh.orderdate BETWEEN '2011-01-01' AND '2012-12-31'
 	AND soh.status = 5 --IN (2, 6) -- 2 = Approved, 6 = Cancelled, 5 = Shipped
 GROUP BY
 	EXTRACT(YEAR FROM soh.orderdate),
@@ -203,34 +206,59 @@ WHERE
 
 SELECT * FROM sales.salesorderdetail sod LIMIT 100;
 
+SELECT * FROM annual_sales;
+
 
 -- ------------------------------------------------------
--- 2012 summary
+-- Monthly/Annual vs PM vs PY summary
 -- ------------------------------------------------------
 
 SELECT
-	EXTRACT(YEAR FROM soh.orderdate) AS order_year,
-	EXTRACT(MONTH FROM soh.orderdate) AS order_month,
-	SUM(soh.subtotal) AS subtotal,
-	-- COUNT(CASE WHEN soh.status = 2 THEN soh.purchaseordernumber ELSE NULL END) order_count,
-	-- COUNT(CASE WHEN soh.status = 6 THEN 1 ELSE NULL END) cancel_count,
-	COUNT(soh.salesorderid) AS total_order_count,
-	COUNT(DISTINCT soh.customerid) AS distinct_cust,
-	SUM(sod.orderqty) AS unit_quantity,
-	COUNT(soh.salesorderid) / COUNT(DISTINCT soh.customerid) AS avg_order_per_person,
-	SUM(soh.subtotal) / COUNT(soh.salesorderid) AS avg_order_amount,
-	SUM(soh.subtotal) / COUNT(DISTINCT soh.customerid) AS avg_order_amt_p_person
+	cm.*,
+	pm.subtotal AS pm_sales,
+	pm.total_order_count AS pm_order_count,
+	pm.distinct_cust AS pm_dist_cust,
+	pm.unit_quantity AS pm_unit_count,
+	pm.avg_order_per_person AS pm_avo_p_person,
+	pm.avg_order_amount AS pm_avo_amount,
+	pm.avg_order_amt_p_person AS pavo_amt_p_person,
+	cm.subtotal / pm.subtotal - 1 AS sales_vs_pm,
+	-- Rest of the metrics
+	py.subtotal AS py_sales,
+	py.total_order_count AS py_order_count,
+	py.distinct_cust AS py_dist_cust,
+	py.unit_quantity AS py_unit_count,
+	py.avg_order_per_person AS py_avo_p_person,
+	py.avg_order_amount AS py_avo_amount,
+	py.avg_order_amt_p_person AS py_avo_amt_p_person,
+	cm.subtotal / py.subtotal - 1 AS sales_vs_py
+	-- Rest of the metrics
 FROM
-	sales.salesorderheader soh
+	annual_sales cm -- Current month
 JOIN
-	sales.salesorderdetail sod
-	ON soh.salesorderid = sod.salesorderid
-WHERE
-	soh.orderdate BETWEEN '2012-01-01' AND '2012-12-31'
-	AND soh.status = 5 --IN (2, 6) -- 2 = Approved, 6 = Cancelled, 5 = Shipped
-GROUP BY
-	EXTRACT(YEAR FROM soh.orderdate),
-	EXTRACT(MONTH FROM soh.orderdate);
+	annual_sales pm -- Previous month
+	ON
+		CASE WHEN pm.order_month = 12 THEN cm.order_year = pm.order_year + 1 ELSE cm.order_year = pm.order_year END
+		AND CASE WHEN pm.order_month = 12 THEN cm.order_month = 1 ELSE cm.order_month = pm.order_month + 1 END
+LEFT JOIN
+	annual_sales py -- Previous YEAR
+	ON cm.order_year = py.order_year + 1
+		AND cm.order_month = py.order_month
+;
+
+
+-- ------------------------------------------------------
+-- Product Category Summary
+-- ------------------------------------------------------
+
+SELECT
+	*
+FROM
+	production.product;
+
+
+
+
 
 
 
