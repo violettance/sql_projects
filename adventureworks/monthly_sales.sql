@@ -170,7 +170,7 @@ WHERE
 
 -- DROP TABLE annual_sales;
 
-CREATE TEMPORARY TABLE annual_sales AS 
+CREATE TABLE sales.annual_sales AS 
 SELECT
 	EXTRACT(YEAR FROM soh.orderdate) AS order_year,
 	EXTRACT(MONTH FROM soh.orderdate) AS order_month,
@@ -213,6 +213,7 @@ SELECT * FROM annual_sales;
 -- Monthly/Annual vs PM vs PY summary
 -- ------------------------------------------------------
 
+CREATE VIEW annual_sales_report AS
 SELECT
 	cm.*,
 	pm.subtotal AS pm_sales,
@@ -246,6 +247,8 @@ LEFT JOIN
 		AND cm.order_month = py.order_month
 ;
 
+SELECT * FROM annual_sales_report;
+
 
 -- ------------------------------------------------------
 -- Product Category Summary
@@ -255,8 +258,6 @@ SELECT
 	*
 FROM
 	production.product;
-
-
 
 
 
